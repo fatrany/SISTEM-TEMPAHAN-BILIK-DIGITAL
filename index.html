@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Tempahan Bilik Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass-effect { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.1); }
+        .booking-card { transition: all 0.3s ease; }
+        .booking-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .booked { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
+        .available { background: linear-gradient(135deg, #51cf66, #40c057); }
+        .notification { animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">📚 Sistem Tempahan Bilik Digital</h1>
+            <p class="text-white/80 text-lg">Tempah bilik digital dengan mudah dan pantas</p>
+        </div>
+
+        <!-- Booking Form -->
+        <div class="max-w-2xl mx-auto mb-8">
+            <div class="glass-effect rounded-2xl p-8 border border-white/20">
+                <h2 class="text-2xl font-semibold text-white mb-6 flex items-center">
+                    <span class="mr-3">📝</span>Borang Tempahan Baharu
+                </h2>
+                
+                <form id="bookingForm" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-white/90 font-medium mb-2">Nama Guru</label>
+                            <input type="text" id="teacherName" required 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
+                                   placeholder="Masukkan nama lengkap">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white/90 font-medium mb-2">No. Telefon</label>
+                            <input type="tel" id="phoneNumber" required 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
+                                   placeholder="01X-XXXXXXX">
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-white/90 font-medium mb-2">Tarikh</label>
+                            <input type="date" id="bookingDate" required 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-white/30">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white/90 font-medium mb-2">Masa</label>
+                            <input type="text" id="timeSlot" required 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
+                                   placeholder="Contoh: 08:00-09:00 atau 14:30-15:30">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-white/90 font-medium mb-2">Subjek/Aktiviti</label>
+                        <input type="text" id="subject" required 
+                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
+                               placeholder="Contoh: Matematik Tingkatan 4">
+                    </div>
+
+                    <div>
+                        <label class="block text-white/90 font-medium mb-2">Bilangan Pelajar</label>
+                        <input type="number" id="studentCount" required min="1" max="40"
+                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
+                               placeholder="Masukkan bilangan pelajar">
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        <span class="mr-2">✅</span>Hantar Tempahan
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Monthly Usage Chart -->
+        <div class="max-w-6xl mx-auto mb-8">
+            <h2 class="text-2xl font-semibold text-white mb-6 flex items-center">
+                <span class="mr-3">📊</span>Graf Penggunaan Guru Mengikut Bulan
+            </h2>
+            
+            <div class="glass-effect rounded-2xl p-8 border border-white/20">
+                <div id="monthlyChart" class="h-80">
+                    <!-- Chart will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Most Frequent Users -->
+        <div class="max-w-6xl mx-auto mb-8">
+            <h2 class="text-2xl font-semibold text-white mb-6 flex items-center">
+                <span class="mr-3">🏆</span>Pengguna Paling Kerap Mengikut Bulan
+            </h2>
+            
+            <div id="frequentUsersList" class="glass-effect rounded-2xl p-8 border border-white/20">
+                <!-- Frequent users will be populated here -->
+            </div>
+        </div>
+
+        <!-- All Bookings -->
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-2xl font-semibold text-white mb-6 flex items-center">
+                <span class="mr-3">👥</span>Senarai Guru Yang Telah Buat Tempahan
+            </h2>
+            
+            <div id="bookingsList" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <!-- All bookings will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden">
+        <div class="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg notification">
+            <div class="flex items-center">
+                <span class="mr-2">✅</span>
+                <span id="notificationText">Tempahan berjaya dihantar!</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Bookings array - starts empty
+        let bookings = [];
+
+        // Set minimum date to today
+        document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
+
+        // Display frequent users by month
+        function displayFrequentUsers() {
+            const frequentUsersList = document.getElementById('frequentUsersList');
+            
+            if (bookings.length === 0) {
+                frequentUsersList.innerHTML = `
+                    <div class="text-center py-8">
+                        <span class="text-6xl mb-4 block">🏆</span>
+                        <p class="text-white/80 text-lg">Senarai pengguna kerap akan dipaparkan setelah ada tempahan</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group bookings by month and teacher
+            const monthlyUsers = {};
+            const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
+            
+            bookings.forEach(booking => {
+                const date = new Date(booking.date);
+                const monthIndex = date.getMonth();
+                const year = date.getFullYear();
+                const monthKey = `${months[monthIndex]} ${year}`;
+                
+                if (!monthlyUsers[monthKey]) {
+                    monthlyUsers[monthKey] = {};
+                }
+                
+                if (!monthlyUsers[monthKey][booking.teacherName]) {
+                    monthlyUsers[monthKey][booking.teacherName] = {
+                        count: 0,
+                        phone: booking.phone,
+                        subjects: new Set()
+                    };
+                }
+                
+                monthlyUsers[monthKey][booking.teacherName].count++;
+                monthlyUsers[monthKey][booking.teacherName].subjects.add(booking.subject);
+            });
+            
+            // Sort months chronologically
+            const sortedMonths = Object.keys(monthlyUsers).sort((a, b) => {
+                const [monthA, yearA] = a.split(' ');
+                const [monthB, yearB] = b.split(' ');
+                const monthIndexA = months.indexOf(monthA);
+                const monthIndexB = months.indexOf(monthB);
+                
+                if (yearA !== yearB) return parseInt(yearB) - parseInt(yearA);
+                return monthIndexB - monthIndexA;
+            });
+            
+            frequentUsersList.innerHTML = sortedMonths.map(month => {
+                const users = monthlyUsers[month];
+                const sortedUsers = Object.entries(users).sort((a, b) => b[1].count - a[1].count);
+                const topUsers = sortedUsers.slice(0, 3); // Top 3 users per month
+                
+                return `
+                    <div class="mb-8 last:mb-0">
+                        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                            <span class="mr-2">📅</span>${month}
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-3 gap-4">
+                            ${topUsers.map(([teacherName, data], index) => {
+                                const medals = ['🥇', '🥈', '🥉'];
+                                const colors = [
+                                    'from-yellow-400 to-yellow-600',
+                                    'from-gray-300 to-gray-500', 
+                                    'from-orange-400 to-orange-600'
+                                ];
+                                
+                                return `
+                                    <div class="glass-effect rounded-xl p-6 border border-white/20 text-center">
+                                        <div class="text-4xl mb-2">${medals[index] || '🏅'}</div>
+                                        <div class="bg-gradient-to-r ${colors[index] || 'from-blue-400 to-blue-600'} text-white px-3 py-1 rounded-full text-sm font-semibold mb-3">
+                                            Kedudukan ${index + 1}
+                                        </div>
+                                        <h4 class="text-white font-semibold text-lg mb-2">${teacherName}</h4>
+                                        <div class="text-white/80 text-sm space-y-1">
+                                            <p><span class="mr-1">📊</span>${data.count} tempahan</p>
+                                            <p><span class="mr-1">📚</span>${data.subjects.size} subjek</p>
+                                            <p><span class="mr-1">📱</span>${data.phone}</p>
+                                        </div>
+                                        <div class="mt-3 text-xs text-white/60">
+                                            Subjek: ${Array.from(data.subjects).join(', ')}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        
+                        ${sortedUsers.length > 3 ? `
+                            <div class="mt-4 text-center">
+                                <p class="text-white/60 text-sm">
+                                    Dan ${sortedUsers.length - 3} guru lain telah membuat tempahan bulan ini
+                                </p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Display monthly chart
+        function displayMonthlyChart() {
+            const chartContainer = document.getElementById('monthlyChart');
+            
+            // Get monthly data
+            const monthlyData = {};
+            const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
+            
+            // Initialize all months with 0
+            months.forEach(month => {
+                monthlyData[month] = 0;
+            });
+            
+            // Count bookings per month
+            bookings.forEach(booking => {
+                const date = new Date(booking.date);
+                const monthIndex = date.getMonth();
+                const monthName = months[monthIndex];
+                monthlyData[monthName]++;
+            });
+            
+            const maxValue = Math.max(...Object.values(monthlyData), 1);
+            
+            if (bookings.length === 0) {
+                chartContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center">
+                            <span class="text-6xl mb-4 block">📊</span>
+                            <p class="text-white/80 text-lg">Graf akan dipaparkan setelah ada tempahan</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            chartContainer.innerHTML = `
+                <div class="flex items-end justify-between h-full px-4 pb-8">
+                    ${months.map(month => {
+                        const count = monthlyData[month];
+                        const height = maxValue > 0 ? (count / maxValue) * 80 : 0;
+                        return `
+                            <div class="flex flex-col items-center flex-1 mx-1">
+                                <div class="relative mb-2 flex items-end justify-center" style="height: 200px;">
+                                    <div class="bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-lg transition-all duration-500 flex items-end justify-center text-white font-semibold text-sm" 
+                                         style="height: ${height}%; width: 100%; min-height: ${count > 0 ? '30px' : '0'};">
+                                        ${count > 0 ? count : ''}
+                                    </div>
+                                </div>
+                                <span class="text-white/80 text-sm font-medium">${month}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div class="text-center mt-4">
+                    <p class="text-white/60 text-sm">Jumlah Tempahan: ${bookings.length}</p>
+                </div>
+            `;
+        }
+
+        // Display bookings
+        function displayBookings() {
+            const bookingsList = document.getElementById('bookingsList');
+            
+            if (bookings.length === 0) {
+                bookingsList.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <div class="glass-effect rounded-2xl p-8 border border-white/20">
+                            <span class="text-6xl mb-4 block">👥</span>
+                            <p class="text-white/80 text-lg">Belum ada tempahan dibuat</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort bookings by date and time
+            const sortedBookings = [...bookings].sort((a, b) => {
+                if (a.date !== b.date) {
+                    return new Date(a.date) - new Date(b.date);
+                }
+                return a.time.localeCompare(b.time);
+            });
+
+            bookingsList.innerHTML = sortedBookings.map(booking => {
+                const bookingDate = new Date(booking.date);
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                
+                let dateLabel = booking.date;
+                if (booking.date === today.toISOString().split('T')[0]) {
+                    dateLabel = "Hari Ini";
+                } else if (booking.date === tomorrow.toISOString().split('T')[0]) {
+                    dateLabel = "Esok";
+                } else {
+                    dateLabel = bookingDate.toLocaleDateString('ms-MY', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                }
+
+                return `
+                    <div class="booking-card glass-effect rounded-xl p-6 border border-white/20">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="available text-white font-semibold px-3 py-1 rounded-full text-sm">
+                                ✅ Ditempah
+                            </span>
+                            <span class="text-white/60 text-sm">#${booking.id}</span>
+                        </div>
+                        
+                        <h3 class="text-white font-semibold text-lg mb-3">${booking.teacherName}</h3>
+                        <div class="space-y-2 text-white/80 text-sm mb-4">
+                            <p><span class="mr-2">📅</span>${dateLabel}</p>
+                            <p><span class="mr-2">🕐</span>${booking.time}</p>
+                            <p><span class="mr-2">📚</span>${booking.subject}</p>
+                            <p><span class="mr-2">👥</span>${booking.students} pelajar</p>
+                            <p><span class="mr-2">📱</span>${booking.phone}</p>
+                        </div>
+                        
+                        <button onclick="printBooking(${booking.id})" 
+                                class="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                            <span class="mr-2">🖨️</span>Cetak Borang
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Check if time slot is available
+        function isTimeSlotAvailable(date, time) {
+            return !bookings.some(booking => 
+                booking.date === date && booking.time === time
+            );
+        }
+
+        // Time slot validation for manual input
+        document.getElementById('timeSlot').addEventListener('blur', function() {
+            const timeValue = this.value.trim();
+            const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]-([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+            
+            if (timeValue && !timePattern.test(timeValue)) {
+                showNotification('Format masa tidak betul. Gunakan format: HH:MM-HH:MM (contoh: 08:00-09:00)', 'error');
+                this.focus();
+            }
+        });
+
+        // Send WhatsApp notification
+        function sendWhatsAppNotification(booking) {
+            const message = `🏫 *TEMPAHAN BILIK DIGITAL BAHARU*
+
+👨‍🏫 *Guru:* ${booking.teacherName}
+📅 *Tarikh:* ${booking.date}
+🕐 *Masa:* ${booking.time}
+📚 *Subjek:* ${booking.subject}
+👥 *Bil. Pelajar:* ${booking.students}
+📱 *No. Tel:* ${booking.phone}
+
+✅ Tempahan telah disahkan dan slot telah ditutup untuk guru lain.
+
+_Sistem Tempahan Bilik Digital_`;
+
+            // In a real implementation, this would integrate with WhatsApp Business API
+            // For demo purposes, we'll show the message that would be sent
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            
+            // Open WhatsApp (for demo)
+            // window.open(whatsappUrl, '_blank');
+            
+            console.log('WhatsApp notification would be sent:', message);
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            // Update notification style based on type
+            const notificationDiv = notification.querySelector('div');
+            if (type === 'error') {
+                notificationDiv.className = 'bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg notification';
+                notificationText.innerHTML = `<span class="mr-2">❌</span>${message}`;
+            } else {
+                notificationDiv.className = 'bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg notification';
+                notificationText.innerHTML = `<span class="mr-2">✅</span>${message}`;
+            }
+            
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Handle form submission
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                teacherName: document.getElementById('teacherName').value,
+                phone: document.getElementById('phoneNumber').value,
+                date: document.getElementById('bookingDate').value,
+                time: document.getElementById('timeSlot').value,
+                subject: document.getElementById('subject').value,
+                students: parseInt(document.getElementById('studentCount').value)
+            };
+
+            // Check if time slot is still available
+            if (!isTimeSlotAvailable(formData.date, formData.time)) {
+                showNotification('Maaf, slot masa ini telah ditempah oleh guru lain!', 'error');
+                return;
+            }
+
+            // Add new booking
+            const newBooking = {
+                id: bookings.length + 1,
+                ...formData
+            };
+
+            bookings.push(newBooking);
+
+            // Send WhatsApp notification
+            sendWhatsAppNotification(newBooking);
+
+            // Show success notification
+            showNotification(`Tempahan berjaya! Notifikasi telah dihantar ke WhatsApp. Slot ${formData.time} kini ditutup untuk guru lain.`);
+
+            // Reset form
+            this.reset();
+
+            // Refresh displays
+            displayBookings();
+            displayMonthlyChart();
+            displayFrequentUsers();
+
+            // Clear the time input for next booking
+            document.getElementById('timeSlot').value = '';
+        });
+
+        // Print booking function
+        function printBooking(bookingId) {
+            const booking = bookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            const bookingDate = new Date(booking.date);
+            const formattedDate = bookingDate.toLocaleDateString('ms-MY', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Borang Tempahan Bilik Digital</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+                        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+                        .logo { font-size: 24px; font-weight: bold; color: #333; }
+                        .subtitle { color: #666; margin-top: 5px; }
+                        .booking-details { margin: 30px 0; }
+                        .detail-row { display: flex; margin-bottom: 15px; }
+                        .label { font-weight: bold; width: 200px; }
+                        .value { flex: 1; border-bottom: 1px dotted #ccc; padding-bottom: 2px; }
+                        .footer { margin-top: 50px; }
+                        .signature-section { display: flex; justify-content: space-between; margin-top: 60px; }
+                        .signature-box { text-align: center; width: 200px; }
+                        .signature-line { border-bottom: 1px solid #333; margin-bottom: 10px; height: 50px; }
+                        @media print { body { margin: 20px; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="logo">📚 SISTEM TEMPAHAN BILIK DIGITAL</div>
+                        <div class="subtitle">Borang Pengesahan Tempahan</div>
+                    </div>
+                    
+                    <div class="booking-details">
+                        <div class="detail-row">
+                            <div class="label">No. Rujukan:</div>
+                            <div class="value">#${booking.id}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="label">Nama Guru:</div>
+                            <div class="value">${booking.teacherName}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="label">No. Telefon:</div>
+                            <div class="value">${booking.phone}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="label">Tarikh Tempahan:</div>
+                            <div class="value">${formattedDate}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="label">Masa:</div>
+                            <div class="value">${booking.time}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="label">Subjek/Aktiviti:</div>
+                            <div class="value">${booking.subject}</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="label">Bilangan Pelajar:</div>
+                            <div class="value">${booking.students} orang</div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="label">Tarikh Cetak:</div>
+                            <div class="value">${new Date().toLocaleDateString('ms-MY')}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p><strong>Nota Penting:</strong></p>
+                        <ul>
+                            <li>Sila bawa borang ini semasa menggunakan bilik digital</li>
+                            <li>Pastikan bilik dalam keadaan bersih selepas penggunaan</li>
+                            <li>Laporkan sebarang kerosakan kepada pihak pengurusan</li>
+                            <li>Tempahan ini tidak boleh dipindah milik</li>
+                        </ul>
+                        
+                        <div class="signature-section">
+                            <div class="signature-box">
+                                <div class="signature-line"></div>
+                                <div>Tandatangan Guru</div>
+                            </div>
+                            
+                            <div class="signature-box">
+                                <div class="signature-line"></div>
+                                <div>Tandatangan Penyelia</div>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        // Initialize displays
+        displayBookings();
+        displayMonthlyChart();
+        displayFrequentUsers();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970a418791c5f932',t:'MTc1NTQ0NTA4MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
